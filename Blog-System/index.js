@@ -1,20 +1,16 @@
 const express = require("express")
 const app = express();
-const path = require('path');
 const ejs = require('ejs');
 const mongoose = require('mongoose');
-const BlogPost = require("./models/BlogPost");
+const newPostController = require('./controllers/newPost');
+const homeController  = require('./controllers/home');
+const getPostController = require ('./controllers/getPost');
+const storePostController  =require ('./controllers/storePost');
+const validateMiddleware  =require('./middleware/validationMiddleware');
 
 //file upload Package
 const fileUpload = require('express-fileupload');
-// Validation Middleware
-const validateMiddleWare = (req,res, next)=>{
-    if(req.files == null || req.body.title == null){
-        return res.redirect('/posts/new')
 
-    }
-    next();
-}
 
 mongoose.connect('mongodb://localhost/my_database',{ useNewUrlParser: true});
 
@@ -24,55 +20,21 @@ app.use(express.static('public'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true}));
 app.use(fileUpload());
-app.use('/posts/store',validateMiddleWare);
+app.use('/posts/store',validateMiddleware);
 
-app.get('/', async (req, res) =>{
-    // res.sendFile(path.resolve(__dirname, 'pages/index.html'))
-    const blogposts = await BlogPost.find({})
-    res.render('index',{
-        blogposts
-    });
-})
+app.get('/',homeController);
 
-app.get('/about', (req, res) =>{
-    // res.sendFile(path.resolve(__dirname,'pages/about.html'))
-    res.render('about');
-})
 
-app.get('/contact', (req,res) =>{
-    // res.sendFile(path.resolve(__dirname,'pages/contact.html'))
-    res.render('contact');
-})
+//get Post
+app.get('/post/:id',getPostController);
 
-app.get('/post/:id', async (req, res) => {
-    // res.sendFile(path.resolve(__dirname,'pages/post.html'))
-    const blogpost = await BlogPost.findById(req.params.id)
-    res.render('post', {
-        blogpost
-    });
-    
-})
 
-app.get('/posts/new',(req, res) =>{
-    // res.sendFile(path.resolve(__dirname,'pages/post.html'))
-    res.render('create');
-})
+//New POst
+app.get('/posts/new',newPostController);
 
 
 //Create Data
-app.post('/posts/store', async (req, res) =>{
-    let image = req.files.image;
-    image.mv(path.resolve(__dirname, 'public/img', image.name) , async (error) =>{
-        await BlogPost.create({
-            ...req.body ,
-            image: '/img/' + image.name
-        });
-        res.redirect('/')
-
-    })
-
-
-})    
+app.post('/posts/store',storePostController)    
 
 
 
