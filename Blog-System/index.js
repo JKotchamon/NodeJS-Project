@@ -16,6 +16,13 @@ const loginController = require('./controllers/login');
 const loginUserController = require('./controllers/loginUser');
 const logoutController = require('./controllers/logout');
 
+
+//Add new Feature
+const myPostController =require('./controllers/mypost');
+const editpostController =require('./controllers/editPostController');
+const updatepostContoller =require('./controllers/updatepostController');
+const deletepostController = require('./controllers/deleteController');
+
 //middleware
 const authMiddleware = require('./middleware/authMiddleware');
 const validateMiddleware  =require('./middleware/validationMiddleware');
@@ -25,8 +32,9 @@ const redirectifauthenMiddleware = require('./middleware/redirectifauthenMiddlew
 const fileUpload = require('express-fileupload');
 const res = require("express/lib/response");
 
-
-mongoose.connect('mongodb+srv://kotchamon:1234@cluster0.mkf4t.mongodb.net/my_database',{ useNewUrlParser: true});
+// mongodb://localhost:27017/my_database
+//mongodb+srv://kotchamon:1234@cluster0.mkf4t.mongodb.net/my_database
+mongoose.connect('mongodb://localhost:27017/my_database',{ useNewUrlParser: true});
 
 app.set('view engine', 'ejs');
 
@@ -61,6 +69,12 @@ app.get('/auth/register',redirectifauthenMiddleware, newUserController);
 app.get('/auth/login',redirectifauthenMiddleware,loginController);
 //logout 
 app.get('/auth/logout',logoutController);
+//View my own post
+app.get('/posts/mypost',authMiddleware,myPostController);
+//Edit POst
+app.get('/posts/edit/:id',authMiddleware,editpostController);
+//Delete Post
+app.get('/posts/delete/:id',authMiddleware,deletepostController);
 
 //Create Data
 app.post('/posts/store',authMiddleware,storePostController);    
@@ -68,6 +82,8 @@ app.post('/posts/store',authMiddleware,storePostController);
 app.post('/users/register',redirectifauthenMiddleware ,storeController);
 //User login
 app.post('/users/login',redirectifauthenMiddleware, loginUserController);
+//Update post
+app.post('/posts/update',authMiddleware,updatepostContoller);
 
 
 
